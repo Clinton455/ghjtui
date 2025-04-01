@@ -36,7 +36,7 @@ jobs:
           zip -r app-release.zip Runner.app
           
       - name: Upload .app bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ios-app
           path: build/ios/iphoneos/app-release.zip
