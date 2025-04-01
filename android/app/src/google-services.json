@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "350124208609",
+    "project_id": "pushnot-2ad72",
+    "storage_bucket": "pushnot-2ad72.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:350124208609:android:272201f7cb246b7e9222a0",
+        "android_client_info": {
+          "package_name": "com.fresh_staff"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApeO6IbSoqCNH8gjGlZtliB3ec4RhDOQE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
