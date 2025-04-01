@@ -23,30 +23,42 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
         
-      - name: Fix Swift bridging header issue
+      - name: Fix Swift issue in Xcode project
         run: |
           cd ios
-          # Disable the "Use Swift Bridging Header" build setting
-          /usr/libexec/PlistBuddy -c "Delete :buildSettings:SWIFT_OBJC_BRIDGING_HEADER" Runner.xcodeproj/project.pbxproj || true
-          # Set SWIFT_EMIT_LOC_STRINGS to YES
-          /usr/libexec/PlistBuddy -c "Add :buildSettings:SWIFT_EMIT_LOC_STRINGS string YES" Runner.xcodeproj/project.pbxproj || true
-        
+          # Disable module interface for Swift
+          /usr/libexec/PlistBuddy -c "Add :buildSettings:SWIFT_OBJC_INTERFACE_HEADER_NAME string \$(PRODUCT_MODULE_NAME)-Swift.h" Runner.xcodeproj/project.pbxproj || true
+          /usr/libexec/PlistBuddy -c "Add :buildSettings:DEFINES_MODULE string NO" Runner.xcodeproj/project.pbxproj || true
+          # Update build settings
+          sed -i '' 's/DEFINES_MODULE = YES/DEFINES_MODULE = NO/g' Runner.xcodeproj/project.pbxproj || true
+          # Make sure Swift version is set correctly
+          /usr/libexec/PlistBuddy -c "Add :buildSettings:SWIFT_VERSION string 5.0" Runner.xcodeproj/project.pbxproj || true
+          
       - name: Pod install
         run: |
           cd ios
-          pod install
+          pod install --repo-update
         
       - name: Build iOS
-        run: flutter build ios --release --no-codesign
+        run: |
+          flutter build ios --release --no-codesign --debug-verbose
           
       - name: Compress .app bundle
         run: |
-          cd build/ios/iphoneos
-          mkdir -p archives
-          zip -r archives/app-release.zip Runner.app
+          if [ -d "build/ios/iphoneos" ]; then
+            cd build/ios/iphoneos
+            zip -r app-release.zip Runner.app
+          else
+            echo "iOS build output directory not found"
+            find build -type d | grep -i ios
+            exit 1
+          fi
           
       - name: Upload .app bundle
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ios-app
-          path: build/ios/iphoneos/archives/app-release.zip
+          name: ios-build-logs
+          path: |
+            ios/build/Logs
+            build/ios
