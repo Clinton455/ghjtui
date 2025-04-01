@@ -41,7 +41,7 @@ jobs:
         
       - name: Build iOS
         run: |
-          flutter build ios --release --no-codesign --debug-verbose
+          flutter build ios --release --no-codesign --verbose
           
       - name: Compress .app bundle
         run: |
