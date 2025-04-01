@@ -29,3 +29,14 @@ jobs:
           pod install
           cd ..
           flutter build ios --release --no-codesign
+          
+      - name: Compress .app bundle
+        run: |
+          cd build/ios/iphoneos
+          zip -r app-release.zip Runner.app
+          
+      - name: Upload .app bundle
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-app
+          path: build/ios/iphoneos/app-release.zip
