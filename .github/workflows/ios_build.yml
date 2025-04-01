@@ -17,26 +17,36 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.2'  # Updated to match the suggested version
+          flutter-version: '3.29.2'
           channel: 'stable'
       
       - name: Install dependencies
         run: flutter pub get
         
-      - name: Build iOS
+      - name: Fix Swift bridging header issue
+        run: |
+          cd ios
+          # Disable the "Use Swift Bridging Header" build setting
+          /usr/libexec/PlistBuddy -c "Delete :buildSettings:SWIFT_OBJC_BRIDGING_HEADER" Runner.xcodeproj/project.pbxproj || true
+          # Set SWIFT_EMIT_LOC_STRINGS to YES
+          /usr/libexec/PlistBuddy -c "Add :buildSettings:SWIFT_EMIT_LOC_STRINGS string YES" Runner.xcodeproj/project.pbxproj || true
+        
+      - name: Pod install
         run: |
           cd ios
           pod install
-          cd ..
-          flutter build ios --release --no-codesign
+        
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
           
       - name: Compress .app bundle
         run: |
           cd build/ios/iphoneos
-          zip -r app-release.zip Runner.app
+          mkdir -p archives
+          zip -r archives/app-release.zip Runner.app
           
       - name: Upload .app bundle
         uses: actions/upload-artifact@v4
         with:
           name: ios-app
-          path: build/ios/iphoneos/app-release.zip
+          path: build/ios/iphoneos/archives/app-release.zip
